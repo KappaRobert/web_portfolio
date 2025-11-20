@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scrollable Compass Animation</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 300vh;
+            background: linear-gradient(to bottom, #f0f9ff, #cfe7f3);
+            font-family: Arial, sans-serif;
+        }
+
+        .compass-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 200px;
+        }
+
+        .compass-body {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.2));
+        }
+
+        .needle {
+            transform-origin: center 70%;
+            transition: transform 0.1s linear;
+        }
+
+        .content {
+            padding: 120vh 20px 50vh;
+            text-align: center;
+            color: #2a4e68;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        .markers {
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <div class="compass-container">
+        <svg class="compass-body" viewBox="0 0 100 100">
+            <!-- Круг основания -->
+            <circle cx="50" cy="50" r="45" fill="#f8f8f8" stroke="#2a4e68" stroke-width="1.5"/>
+            
+            <!-- Центральная точка -->
+            <circle cx="50" cy="50" r="3" fill="#c00"/>
+            
+            <!-- Стрелка -->
+            <path class="needle" d="M50 15 L55 70 L50 75 L45 70 L50 15" fill="#c00"/>
+            
+            <!-- Маркеры сторон света -->
+            <text class="markers" x="50" y="20" text-anchor="middle" dominant-baseline="middle">N</text>
+            <text class="markers" x="50" y="80" text-anchor="middle" dominant-baseline="middle">S</text>
+            <text class="markers" x="20" y="50" text-anchor="middle" dominant-baseline="middle">W</text>
+            <text class="markers" x="80" y="50" text-anchor="middle" dominant-baseline="middle">E</text>
+            
+            <!-- Деления -->
+            <line x1="50" y1="10" x2="50" y2="15" stroke="#2a4e68" stroke-width="1"/>
+            <line x1="50" y1="85" x2="50" y2="90" stroke="#2a4e68" stroke-width="1"/>
+            <line x1="10" y1="50" x2="15" y2="50" stroke="#2a4e68" stroke-width="1"/>
+            <line x1="85" y1="50" x2="90" y2="50" stroke="#2a4e68" stroke-width="1"/>
+        </svg>
+    </div>
+
+    <div class="content">
+        <h1>Прокрутите страницу</h1>
+        <p>Стрелка компаса будет вращаться в зависимости от направления прокрутки ↓↑</p>
+    </div>
+
+    <script>
+        const needle = document.querySelector('.needle');
+        let lastScrollY = window.scrollY;
+        let currentRotation = 0;
+        
+        // Максимальный угол поворота за одну прокрутку
+        const rotationSpeed = 3; 
+        
+        // Максимальная амплитуда колебаний
+        const maxBounce = 5;
+
+        window.addEventListener('scroll', () => {
+            const scrollY = window.scrollY;
+            const scrollDelta = scrollY - lastScrollY;
+            
+            // Основное вращение
+            currentRotation += scrollDelta * rotationSpeed;
+            
+            // Добавляем эффект "дрожания" при прокрутке
+            const bounceEffect = Math.sin(Date.now() * 0.1) * maxBounce;
+            
+            needle.style.transform = `rotate(${currentRotation + bounceEffect}deg)`;
+            
+            lastScrollY = scrollY;
+        });
+
+        // Плавное замедление после прокрутки
+        function smoothDeceleration() {
+            if (Math.abs(currentRotation % 360) > 1) {
+                currentRotation *= 0.98;
+                needle.style.transform = `rotate(${currentRotation}deg)`;
+                requestAnimationFrame(smoothDeceleration);
+            }
+        }
+
+        window.addEventListener('scrollend', smoothDeceleration);
+    </script>
+</body>
+</html>
